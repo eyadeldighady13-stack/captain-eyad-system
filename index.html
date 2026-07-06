@@ -1,0 +1,2401 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام عمليات أكاديمية كابتن إياد للسباحة</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons for Beautiful Sports UI -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', 'Inter', sans-serif;
+            background-color: #f0f7f9;
+        }
+        /* Custom Premium Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #eaf5f8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0d9488;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0f766e;
+        }
+        /* Pulse Animation for vacancy */
+        .pulse-available {
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        /* Modern Water wave overlay */
+        .water-wave-gradient {
+            background: linear-gradient(135deg, #072e33 0%, #0d9488 50%, #05161a 100%);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Toast Container notifications -->
+    <div id="toast-container" class="fixed top-5 left-5 z-[9999] transition-all duration-300 transform translate-y-[-100px] opacity-0">
+        <div id="toast-box" class="flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border text-white font-semibold">
+            <span id="toast-icon"></span>
+            <span id="toast-text"></span>
+        </div>
+    </div>
+
+    <!-- Secure Guarded Login Gate Screen -->
+    <div id="login-screen" class="fixed inset-0 z-50 water-wave-gradient flex items-center justify-center p-4">
+        <div class="bg-slate-900/90 backdrop-blur-md rounded-3xl w-full max-w-md p-6 border border-teal-500/30 shadow-2xl flex flex-col items-center">
+            
+            <!-- Logo Section with Live verified fallback -->
+            <div class="mb-5 text-center">
+                <div class="relative inline-block">
+                    <!-- Image reference verbatim: "لوجو الاكاديمية 1_2.jfif" -->
+                    <img src="لوجو الاكاديمية 1_2.jfif" alt="Captain Eyad Logo" onerror="this.src='https://placehold.co/180x180/0d9488/ffffff?text=Eyad+Academy'" class="w-32 h-32 rounded-full border-4 border-teal-400 object-cover shadow-2xl">
+                    <span class="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-2 border-slate-900 rounded-full animate-ping"></span>
+                    <span class="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+                </div>
+                <h1 class="text-xl font-black text-white mt-3">نظام التشغيل وحماية العمليات</h1>
+                <p class="text-[10px] text-teal-300 font-bold mt-1">أكاديمية الكابتن إياد للسباحة الاحترافية</p>
+            </div>
+
+            <!-- Login Tabs selection -->
+            <div class="flex w-full bg-slate-800 rounded-xl p-1 mb-5">
+                <button onclick="toggleLoginTab('admin')" id="login-tab-admin" class="w-1/2 text-xs font-black py-2 rounded-lg transition-all text-white bg-teal-600">
+                    🔑 لوحة التحكم للإدارة
+                </button>
+                <button onclick="toggleLoginTab('coach')" id="login-tab-coach" class="w-1/2 text-xs font-black py-2 rounded-lg transition-all text-teal-400">
+                    🏊‍♂️ بوابة الكباتن والتحضير
+                </button>
+            </div>
+
+            <!-- Admin Login Form (Form action overridden with type="button" to bypass Iframe sandbox blocks) -->
+            <form id="admin-login-form" onsubmit="event.preventDefault(); handleAdminLoginDirect();" class="w-full space-y-4">
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-300">رمز المرور الإداري الموحد</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-teal-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="admin-pwd-input" placeholder="ادخل الباسورد المخصص للإدارة..." class="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 text-xs font-bold">
+                        <button type="button" onclick="togglePasswordVisibility('admin-pwd-input', 'admin-eye-icon')" class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-white transition-all">
+                            <i id="admin-eye-icon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="handleAdminLoginDirect()" class="w-full bg-gradient-to-l from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white text-xs font-black py-3 rounded-xl shadow-lg shadow-teal-500/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    تأكيد وتسجيل الدخول للإدارة
+                </button>
+            </form>
+
+            <!-- Coach Login Form -->
+            <form id="coach-login-form" onsubmit="event.preventDefault(); handleCoachLoginDirect();" class="w-full space-y-4 hidden">
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-300">اسم المستخدم للكابتن</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-teal-400">
+                            <i class="fa-solid fa-user-ninja"></i>
+                        </span>
+                        <input type="text" id="coach-username-input" placeholder="ادخل اسم المستخدم..." class="w-full pl-4 pr-10 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 text-xs font-bold" dir="ltr">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-300">كلمة المرور الخاصة بك</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-teal-400">
+                            <i class="fa-solid fa-key"></i>
+                        </span>
+                        <input type="password" id="coach-pwd-input" placeholder="ادخل كلمة المرور السرية..." class="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 text-xs font-bold" dir="ltr">
+                        <button type="button" onclick="togglePasswordVisibility('coach-pwd-input', 'coach-eye-icon')" class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-white transition-all">
+                            <i id="coach-eye-icon" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" onclick="handleCoachLoginDirect()" class="w-full bg-gradient-to-l from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs font-black py-3 rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    دخول إلى قائمة المسبح والتحضير
+                </button>
+            </form>
+            
+            <p class="text-[9px] text-slate-500 mt-4 text-center">أكاديمية كابتن إياد لتدريب السباحة الاحترافي © 2026</p>
+        </div>
+    </div>
+
+    <!-- Main Workspace Container -->
+    <div id="main-app" class="hidden flex flex-col min-h-screen">
+        
+        <!-- Premium Header Area with verbatim image reference "لوجو الاكاديمية 1_2.jfif" -->
+        <header class="bg-gradient-to-r from-teal-950 via-teal-800 to-slate-900 text-white shadow-xl">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                
+                <!-- Logo & Brand Header -->
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <img src="لوجو الاكاديمية 1_2.jfif" alt="Captain Eyad Logo" onerror="this.src='https://placehold.co/150x150/0d9488/ffffff?text=Eyad+Academy'" class="w-16 h-16 rounded-full border-2 border-teal-400 object-cover shadow-lg transition-transform hover:scale-105 duration-300">
+                        <span class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 border-2 border-slate-900 rounded-full animate-pulse"></span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-black tracking-wide flex items-center gap-2">
+                            <span>أكاديمية الكابتن إياد للسباحة</span>
+                        </h1>
+                        <p class="text-xs text-teal-300 font-semibold flex items-center gap-1.5 mt-0.5">
+                            <i class="fa-solid fa-circle-nodes text-[8px] text-emerald-400 animate-ping"></i>
+                            نظام التشغيل وإدارة العمليات اللوجستية والمدربين
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Live Search Box (Visible to Admin only) -->
+                <div class="w-full md:w-80 relative" id="search-box-container">
+                    <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-teal-300">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input 
+                        type="text" 
+                        id="global-search" 
+                        placeholder="بحث فوري عن طالب، مدرب، مستوى، أو مجموعة..." 
+                        class="w-full pl-4 pr-10 py-2 rounded-xl bg-teal-950/60 border border-teal-700/60 text-white placeholder-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-400 text-xs transition-all"
+                        oninput="handleGlobalSearch(this.value)"
+                    >
+                </div>
+
+                <!-- User Session & Logout Info -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-teal-950/80 px-4 py-2 rounded-xl border border-teal-700/60 flex items-center gap-2">
+                        <span class="text-xs font-bold text-teal-100 flex items-center gap-1.5" id="user-display-badge">
+                            <!-- Populated with role badge -->
+                        </span>
+                        <button onclick="handleLogout()" class="text-[10px] bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            تسجيل الخروج
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs (Only rendered for Admin) -->
+        <div id="admin-nav-bar" class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto gap-4">
+                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="flex items-center gap-2 px-4 py-4 text-xs md:text-sm font-bold border-b-2 transition-all whitespace-nowrap text-teal-600 border-teal-600">
+                    <i class="fa-solid fa-chart-line text-lg"></i>
+                    نظرة شاملة ومستشار التسكين
+                </button>
+                <button onclick="switchTab('groups')" id="tab-groups" class="flex items-center gap-2 px-4 py-4 text-xs md:text-sm font-bold border-b-2 transition-all whitespace-nowrap text-slate-500 border-transparent hover:text-teal-600 hover:border-teal-500">
+                    <i class="fa-solid fa-shapes text-lg"></i>
+                    المجموعات وتشكيل الليفلات
+                </button>
+                <button onclick="switchTab('students')" id="tab-students" class="flex items-center gap-2 px-4 py-4 text-xs md:text-sm font-bold border-b-2 transition-all whitespace-nowrap text-slate-500 border-transparent hover:text-teal-600 hover:border-teal-500">
+                    <i class="fa-solid fa-user-graduate text-lg"></i>
+                    قائمة وسجلات الطلاب
+                </button>
+                <button onclick="switchTab('trainer-hours')" id="tab-trainer-hours" class="flex items-center gap-2 px-4 py-4 text-xs md:text-sm font-bold border-b-2 transition-all whitespace-nowrap text-slate-500 border-transparent hover:text-teal-600 hover:border-teal-500">
+                    <i class="fa-solid fa-business-time text-lg"></i>
+                    حساب وساعات عمل المدربين
+                </button>
+                <button onclick="switchTab('attendance-audit')" id="tab-attendance-audit" class="flex items-center gap-2 px-4 py-4 text-xs md:text-sm font-bold border-b-2 transition-all whitespace-nowrap text-slate-500 border-transparent hover:text-teal-600 hover:border-teal-500">
+                    <i class="fa-solid fa-file-invoice text-lg"></i>
+                    اعتمادات الحضور والغياب
+                </button>
+                <button onclick="switchTab('credentials-setup')" id="tab-credentials-setup" class="flex items-center gap-2 px-4 py-4 text-xs md:text-sm font-bold border-b-2 transition-all whitespace-nowrap text-slate-500 border-transparent hover:text-teal-600 hover:border-teal-500">
+                    <i class="fa-solid fa-user-lock text-lg"></i>
+                    🔑 الحسابات والصلاحيات
+                </button>
+            </div>
+        </div>
+
+        <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:py-6">
+
+            <!-- ADMIN WORKSPACE CONTAINER -->
+            <div id="admin-workspace" class="space-y-6 hidden">
+
+                <!-- 1. DASHBOARD TAB VIEW -->
+                <section id="view-dashboard" class="space-y-6">
+                    
+                    <!-- Hero Splash Card with Logo Integration -->
+                    <div class="bg-gradient-to-l from-teal-900 via-teal-800 to-emerald-950 text-white rounded-3xl p-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                        <div class="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-12 translate-y-[-20px]">
+                            <i class="fa-solid fa-person-swimming text-[250px]"></i>
+                        </div>
+                        <div class="space-y-2 relative z-10 text-center md:text-right">
+                            <span class="bg-teal-400/20 text-teal-300 font-bold text-xs px-3 py-1 rounded-full border border-teal-400/30">لوحة تحكم وتوجيه عمليات الإدارة والتشغيل</span>
+                            <h2 class="text-2xl md:text-3xl font-black">أكاديمية كابتن إياد للسباحة الاحترافية</h2>
+                            <p class="text-xs text-teal-100 max-w-xl leading-relaxed">تابع مستويات المجموعات وإشغال المدربين، وقم بتسكين الطلاب الجدد بمجرد اتصال العميل دون تضارب المواعيد.</p>
+                        </div>
+                        <div class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 backdrop-blur-sm">
+                            <img src="لوجو الاكاديمية 1_2.jfif" alt="Eyad Small Logo" onerror="this.src='https://placehold.co/150x150/0d9488/ffffff?text=Eyad'" class="w-16 h-16 rounded-full border-2 border-white/20 object-cover">
+                            <div>
+                                <span class="block text-xs text-teal-300 font-bold">تاريخ النظام الحالي</span>
+                                <span id="live-system-date" class="block font-black text-sm">الأحد، 5 يوليو 2026</span>
+                                <span class="text-[10px] text-emerald-400 font-semibold"><i class="fa-solid fa-shield-check"></i> متصل وآمن</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards Grid -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-gradient-to-br from-teal-600 to-teal-800 text-white rounded-2xl p-4 shadow-md flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-teal-100 font-bold">المدربين اليوم</p>
+                                <h3 class="text-2xl md:text-3xl font-black mt-1" id="stat-coaches-count">8</h3>
+                                <span class="text-[10px] text-teal-200 block mt-1"><i class="fa-solid fa-user-check"></i> جاهزون للاستلام</span>
+                            </div>
+                            <div class="text-4xl opacity-20"><i class="fa-solid fa-user-shield"></i></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white rounded-2xl p-4 shadow-md flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-emerald-100 font-bold">الحصص المجدولة</p>
+                                <h3 class="text-2xl md:text-3xl font-black mt-1" id="stat-sessions-count">6</h3>
+                                <span class="text-[10px] text-emerald-200 block mt-1" id="stat-sessions-sub">4 جماعية | 2 خاصة</span>
+                            </div>
+                            <div class="text-4xl opacity-20"><i class="fa-solid fa-water"></i></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-sky-600 to-indigo-700 text-white rounded-2xl p-4 shadow-md flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-sky-100 font-bold">الطلاب المتوقعين</p>
+                                <h3 class="text-2xl md:text-3xl font-black mt-1" id="stat-expected-students">15</h3>
+                                <span class="text-[10px] text-sky-200 block mt-1">مسجلين في الكشوفات</span>
+                            </div>
+                            <div class="text-4xl opacity-20"><i class="fa-solid fa-graduation-cap"></i></div>
+                        </div>
+                        <div class="bg-gradient-to-br from-slate-700 to-slate-900 text-white rounded-2xl p-4 shadow-md flex items-center justify-between">
+                            <div>
+                                <p class="text-xs text-slate-200 font-bold">سجل حضور اليوم</p>
+                                <h3 class="text-2xl md:text-3xl font-black mt-1" id="stat-actual-attended">5</h3>
+                                <span class="text-[10px] text-rose-300 block mt-1" id="stat-absent-count">عدد الغائبين: 1</span>
+                            </div>
+                            <div class="text-4xl opacity-20"><i class="fa-solid fa-chart-bar"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Live Operations Split View -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- Trainer Status: Free/Busy -->
+                        <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 lg:col-span-1">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+                                <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-user text-teal-600"></i>
+                                    جاهزية وتواجد المدربين (Live)
+                                </h3>
+                                <span class="text-[9px] text-slate-400">انقر للتبديل السريع</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">من هو الكابتن الفاضي (متاح) فوراً لتكليفه بحصص تجريبية أو تسكين؟ انقر لتغيير حالته فوراً.</p>
+                            
+                            <div class="space-y-2 max-h-80 overflow-y-auto pr-1" id="dashboard-coach-status">
+                                <!-- Dynamic Coach Availability List -->
+                            </div>
+                        </div>
+
+                        <!-- Assistant: Smart Student Placement Decision Recommender -->
+                        <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 lg:col-span-1">
+                            <div class="border-b border-slate-100 pb-3 mb-3">
+                                <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-teal-600"></i>
+                                    مستشار التسكين والتحويل الذكي
+                                </h3>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">عند اتصال العميل، حدد مستوى طفله لمعرفة المجموعات الأنسب وذات المقاعد الفارغة فوراً.</p>
+                            
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">حدد مستوى المهارة للطالب:</label>
+                                    <select id="assistant-level" onchange="runAssistantRecommendation(this.value)" class="w-full text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:ring-2 focus:ring-teal-500 outline-none">
+                                        <option value="">-- اختر المستوى --</option>
+                                        <option value="1">المستوى الأول (Level 1)</option>
+                                        <option value="2">المستوى الثاني (Level 2)</option>
+                                        <option value="3">المستوى الثالث (Level 3)</option>
+                                        <option value="4">المستوى الرابع (Level 4)</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="assistant-result" class="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-600 space-y-2 min-h-24 flex flex-col justify-center">
+                                    <div class="text-center text-slate-400 py-4">في انتظار اختيار المستوى للبحث...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Level Vacancies Dashboard -->
+                        <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100 lg:col-span-1">
+                            <div class="border-b border-slate-100 pb-3 mb-3">
+                                <h3 class="text-sm font-extrabold text-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-layer-group text-teal-600"></i>
+                                    الأماكن المتاحة في المستويات (Levels)
+                                </h3>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">حالة المقاعد الإجمالية الشاغرة مصنفة حسب المستويات الأربعة لسرعة التسويق واتخاذ القرارات.</p>
+                            
+                            <div class="space-y-3" id="dashboard-level-seats">
+                                <!-- Dynamic Level Seats Mapping -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vacant Groups Quick Booking Bar -->
+                    <div class="bg-emerald-50/50 rounded-3xl p-5 border border-emerald-100">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-emerald-100 pb-3 mb-3">
+                            <div>
+                                <h3 class="text-sm font-black text-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-sparkles text-emerald-600 animate-bounce"></i>
+                                    مجموعات تدريبية شاغرة متاح تسكينها الآن ⚡
+                                </h3>
+                                <p class="text-xs text-slate-500 font-semibold">تسكين سريع بنقرة واحدة بمجرد تواجد العميل أمامك!</p>
+                            </div>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full border border-emerald-200">🟢 متاح للتسجيل الفوري</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="dashboard-vacant-groups">
+                            <!-- Dynamic Vacant Groups -->
+                        </div>
+                    </div>
+
+                    <!-- Live Groups Status Visual Grid -->
+                    <div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                            <div>
+                                <h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-grip text-teal-600"></i>
+                                    مصفوفة المجموعات الفعالة وحالتها الاستيعابية
+                                </h3>
+                                <p class="text-xs text-slate-500">مراقبة دقيقة للأرقام ونسب الإشغال</p>
+                            </div>
+                            <!-- Legend indicators -->
+                            <div class="flex flex-wrap gap-2 text-[10px] bg-white px-3 py-1.5 rounded-xl border border-slate-100">
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> متاح</span>
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> مقعد واحد متبقي</span>
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> مكتملة (Full)</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="dashboard-groups-grid">
+                            <!-- Dynamic Group Cards -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. GROUPS MANAGEMENT VIEW -->
+                <section id="view-groups" class="space-y-6 hidden">
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 mb-4">
+                            <div>
+                                <h2 class="text-lg font-extrabold text-slate-800">إدارة مصفوفة المجموعات وتوزيع المدربين</h2>
+                                <p class="text-xs text-slate-500">تحكم بتشكيل المدربين في المستويات، تغيير طاقة الاستيعاب وتعديل المواعيد</p>
+                            </div>
+                            <button onclick="openGroupModal()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-circle-plus"></i>
+                                تأسيس مجموعة جديدة
+                            </button>
+                        </div>
+
+                        <!-- Groups Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold">
+                                        <th class="p-3">اسم المجموعة / النوع</th>
+                                        <th class="p-3">المستوى (Level)</th>
+                                        <th class="p-3">المدرب المسؤول</th>
+                                        <th class="p-3">الموعد والتوقيت</th>
+                                        <th class="p-3">الطاقة الاستيعابية</th>
+                                        <th class="p-3">حالة المقاعد</th>
+                                        <th class="p-3 text-center">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="groups-table-body" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. STUDENTS VIEW -->
+                <section id="view-students" class="space-y-6 hidden">
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-slate-100 pb-4 mb-4">
+                            <div>
+                                <h2 class="text-lg font-extrabold text-slate-800">سجلات ومتابعة تطور الطلاب</h2>
+                                <p class="text-xs text-slate-500">نقل فوري وسريع للطلاب بين المجموعات عند تطور مستوياتهم</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <select id="student-level-filter" onchange="filterStudentsByLevel(this.value)" class="text-xs font-bold border border-slate-200 rounded-xl p-2 focus:ring-2 focus:ring-teal-500 bg-slate-50">
+                                    <option value="all">كل المستويات</option>
+                                    <option value="1">المستوى الأول</option>
+                                    <option value="2">المستوى الثاني</option>
+                                    <option value="3">المستوى الثالث</option>
+                                    <option value="4">المستوى الرابع</option>
+                                </select>
+                                
+                                <button onclick="openStudentModal()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center gap-2">
+                                    <i class="fa-solid fa-user-plus"></i>
+                                    تسجيل وتسكين طالب جديد
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Students List -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold">
+                                        <th class="p-3">اسم الطالب</th>
+                                        <th class="p-3">المستوى الحالي</th>
+                                        <th class="p-3">المجموعة الحالية</th>
+                                        <th class="p-3">المدرب</th>
+                                        <th class="p-3">الحصص (المنجزة / المتبقية)</th>
+                                        <th class="p-3">حالة الاشتراك</th>
+                                        <th class="p-3 text-center">الإجراءات والتحويل</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="students-table-body" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. HOURS ADJUSTMENT VIEW -->
+                <section id="view-trainer-hours" class="space-y-6 hidden">
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 mb-4">
+                            <div>
+                                <h2 class="text-lg font-extrabold text-slate-800">حصر ومراقبة ساعات عمل الكباتن</h2>
+                                <p class="text-xs text-slate-500">حساب فوري شامل لجميع الساعات التلقائية والساعات المضافة يدوياً</p>
+                            </div>
+                            <button onclick="openHoursAdjustmentModal()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 shadow-md">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                إضافة ساعات عمل إضافية / يدوية
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="coaches-hours-grid">
+                            <!-- Dynamic Coach Hours Cards -->
+                        </div>
+                    </div>
+
+                    <!-- Manual Hours Registry Table -->
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <div class="border-b border-slate-100 pb-4 mb-4">
+                            <h3 class="text-base font-extrabold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-teal-600"></i>
+                                سجل التعديلات والساعات الإضافية اليدوية
+                            </h3>
+                            <p class="text-xs text-slate-500">مراجعة وتعديل وإلغاء الساعات التي تمت إضافتها خارج جدول التحضير التلقائي</p>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold">
+                                        <th class="p-3">اسم المدرب</th>
+                                        <th class="p-3">التاريخ والوقت</th>
+                                        <th class="p-3">الساعات المضافة</th>
+                                        <th class="p-3">المبرر / ملاحظات الإدارة</th>
+                                        <th class="p-3 text-center">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="manual-hours-table-body" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Dynamic Manual Hours Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. ATTENDANCE AUDIT LOGS -->
+                <section id="view-attendance-audit" class="space-y-6 hidden">
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                        <div class="border-b border-slate-100 pb-4 mb-4">
+                            <h2 class="text-lg font-extrabold text-slate-800">أرشيف وتدقيق كشوف الحضور والغياب</h2>
+                            <p class="text-xs text-slate-500">مراقبة السجلات التي أدخلها الكباتن في بوابة التحضير</p>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold">
+                                        <th class="p-3">التاريخ والوقت</th>
+                                        <th class="p-3">المجموعة التدريبية</th>
+                                        <th class="p-3">المدرب المسجل</th>
+                                        <th class="p-3">بيان الحضور</th>
+                                        <th class="p-3">المسؤول عن الإدخال</th>
+                                        <th class="p-3 text-center">الإجراء المتخذ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-audit-table-body" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Dynamic log rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. CREDENTIALS AND SECURITY VIEW (Admin Only) -->
+                <section id="view-credentials-setup" class="space-y-6 hidden">
+                    <div class="bg-white rounded-3xl p-6 shadow-md border border-slate-100">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 mb-4">
+                            <div>
+                                <h2 class="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+                                    <i class="fa-solid fa-user-shield text-teal-600"></i>
+                                    إدارة حسابات وصلاحيات دخول المدربين
+                                </h2>
+                                <p class="text-xs text-slate-500">خصص لكل كابتن اسم مستخدم وكلمة مرور خاصة لحماية خصوصية بياناته وطلابه.</p>
+                            </div>
+                            <button onclick="openAddCoachModal()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus"></i>
+                                إضافة ملف كابتن جديد
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold">
+                                        <th class="p-3">اسم الكابتن</th>
+                                        <th class="p-3">الوردية المخصصة</th>
+                                        <th class="p-3">اسم المستخدم للقرير (Username)</th>
+                                        <th class="p-3">كلمة المرور (Password)</th>
+                                        <th class="p-3 text-center">حفظ التغييرات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="credentials-table-body" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Dynamic rows to edit usernames/passwords directly -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- COACH PORTAL WORKSPACE (Strictly scoped to logged-in Coach credentials) -->
+            <div id="coach-workspace" class="space-y-6 hidden">
+                <div class="bg-gradient-to-br from-teal-800 to-emerald-950 rounded-3xl p-6 text-white shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <span class="bg-teal-400 text-teal-950 font-bold text-[10px] px-3 py-1 rounded-full">بوابة المسبح والتحضير الفوري والآمن</span>
+                        <h2 class="text-2xl font-black mt-2" id="coach-welcome-title">أهلاً بك يا كابتن</h2>
+                        <p class="text-xs text-teal-100 mt-1" id="coach-shift-subtitle">الوردية الحالية</p>
+                    </div>
+                    <div class="flex gap-4 relative z-10">
+                        <div class="bg-slate-900/40 p-4 rounded-2xl border border-teal-700/50 text-center">
+                            <p class="text-[10px] text-teal-300 font-bold">حصصك المعتمدة الكلية</p>
+                            <h4 class="text-lg font-extrabold mt-1" id="coach-portal-hours">0 حصة</h4>
+                        </div>
+                        <div class="bg-slate-900/40 p-4 rounded-2xl border border-teal-700/50 text-center">
+                            <p class="text-[10px] text-teal-300 font-bold">مجموعاتك النشطة</p>
+                            <h4 class="text-lg font-extrabold mt-1" id="coach-portal-groups-count">0 مجموعة</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assigned Groups -->
+                <div>
+                    <h3 class="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-day text-teal-600"></i>
+                        مجموعاتك وحصصك المجدولة في الأكاديمية
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="coach-my-groups-list">
+                        <!-- Dynamic Groups Assigned to Current Coach -->
+                    </div>
+                </div>
+
+                <!-- Attendance Taking Form Overlay/Container -->
+                <div id="attendance-taking-panel" class="bg-white rounded-3xl p-6 shadow-md border border-teal-100 hidden scroll-mt-6">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
+                        <div>
+                            <span class="text-xs text-teal-600 font-bold" id="attendance-panel-badge">المستوى الأول</span>
+                            <h3 class="text-lg font-black text-slate-800" id="attendance-panel-group-name">تحضير مجموعة الابطال</h3>
+                            <p class="text-xs text-slate-500" id="attendance-panel-timing">الوقت والتاريخ</p>
+                        </div>
+                        <button onclick="hideAttendancePanel()" class="text-slate-400 hover:text-rose-500 text-sm font-bold">
+                            إغلاق الكشف <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <!-- Live Student Attendance Grid -->
+                    <div class="overflow-x-auto mb-6">
+                        <table class="w-full text-right border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-100 text-slate-500 text-xs font-bold">
+                                    <th class="p-3">اسم الطالب</th>
+                                    <th class="p-3">المستوى</th>
+                                    <th class="p-3">الحصص المتبقية بالاشتراك</th>
+                                    <th class="p-3 text-center">الحالة التدريبية للحصة الحالية</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-sheet-body" class="divide-y divide-slate-100">
+                                <!-- Dynamic Students in the selected group to check attendance -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button onclick="hideAttendancePanel()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-5 py-2.5 rounded-xl transition-all">
+                            إلغاء
+                        </button>
+                        <button onclick="submitAttendanceSheet()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-lg shadow-emerald-600/20 transition-all">
+                            حفظ واعتماد كشف الحضور والغياب للجميع
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Global Footer -->
+        <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-auto border-t border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <img src="لوجو الاكاديمية 1_2.jfif" alt="Eyad Footer Logo" onerror="this.src='https://placehold.co/150x150/0d9488/ffffff?text=Eyad'" class="w-8 h-8 rounded-full">
+                    <div>
+                        <p class="font-bold text-slate-300">أكاديمية كابتن إياد لتدريب السباحة الاحترافي</p>
+                        <p class="text-slate-500 text-[10px]">نظام لوجستيات العمليات وحساب ساعات العمل والامتلاء الفوري.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4 text-[10px]">
+                    <span class="text-emerald-500 font-bold flex items-center gap-1">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span>
+                        النظام متصل ونشط ومؤمن بالكامل
+                    </span>
+                    <span>تحديث 2026.1.5</span>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- 1. Add / Edit Group Modal -->
+    <div id="group-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-slate-100">
+            <div class="bg-gradient-to-r from-teal-800 to-teal-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-base font-black flex items-center gap-2" id="group-modal-title">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    تأسيس مجموعة جديدة وتخصيص المدربين
+                </h3>
+                <button onclick="closeGroupModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المجموعة التدريبية</label>
+                    <input type="text" id="m-group-name" placeholder="مثال: مهارات المستوى الأول صباحي" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المستوى المستهدف (Level)</label>
+                        <select id="m-group-level" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500">
+                            <option value="1">Level 1</option>
+                            <option value="2">Level 2</option>
+                            <option value="3">Level 3</option>
+                            <option value="4">Level 4</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">نوع التدريب</label>
+                        <select id="m-group-type" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500">
+                            <option value="Group">جماعي (Group)</option>
+                            <option value="Private">خاص (Private)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المدرب المسؤول (التشكيل)</label>
+                        <select id="m-group-coach" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">يوم التدريب الأسبوعي</label>
+                        <select id="m-group-day" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500">
+                            <option value="السبت">السبت</option>
+                            <option value="الأحد">الأحد</option>
+                            <option value="الإثنين">الإثنين</option>
+                            <option value="الثلاثاء">الثلاثاء</option>
+                            <option value="الأربعاء">الأربعاء</option>
+                            <option value="الخميس">الخميس</option>
+                            <option value="الجمعة">الجمعة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">وقت البداية</label>
+                        <input type="time" id="m-group-start" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">وقت النهاية</label>
+                        <input type="time" id="m-group-end" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">الحد الأقصى للطلاب</label>
+                        <input type="number" id="m-group-capacity" min="1" max="15" value="5" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button onclick="closeGroupModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-5 py-3 rounded-xl transition-all">إلغاء</button>
+                    <button onclick="saveNewGroup()" id="save-group-btn" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-6 py-3 rounded-xl shadow-lg transition-all">حفظ وتأكيد</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Enroll Student Modal -->
+    <div id="student-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl border border-slate-100">
+            <div class="bg-gradient-to-r from-teal-800 to-teal-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-base font-black flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i>
+                    تسجيل طالب جديد وتسكينه فوراً
+                </h3>
+                <button onclick="closeStudentModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم الطالب الرباعي</label>
+                    <input type="text" id="m-student-name" placeholder="مثال: سلمان فهد العريفي" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">مستوى مهارات السباحة الحالي</label>
+                        <select id="m-student-level" onchange="suggestGroupsForStudent(this.value)" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500">
+                            <option value="">-- اختر المستوى --</option>
+                            <option value="1">المستوى الأول (Level 1)</option>
+                            <option value="2">المستوى الثاني (Level 2)</option>
+                            <option value="3">المستوى الثالث (Level 3)</option>
+                            <option value="4">المستوى الرابع (Level 4)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">رصيد اشتراك الحصص</label>
+                        <select id="m-student-classes" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500">
+                            <option value="8">8 حصص</option>
+                            <option value="12">12 حصة</option>
+                            <option value="16">16 حصة</option>
+                            <option value="4">4 حصص</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dynamic Suggestions -->
+                <div>
+                    <span class="block text-xs font-bold text-teal-800 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        المجموعات المناسبة والمتاحة لهذا المستوى:
+                    </span>
+                    <div id="student-group-suggestions" class="space-y-2 border border-slate-100 p-3 rounded-2xl bg-slate-50 max-h-48 overflow-y-auto">
+                        <p class="text-xs text-slate-400 text-center py-4">الرجاء اختيار مستوى الطالب أولاً لعرض المقترحات المتاحة...</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button onclick="closeStudentModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-5 py-3 rounded-xl transition-all">إلغاء</button>
+                    <button onclick="saveNewStudent()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-6 py-3 rounded-xl shadow-lg transition-all">إدراج وتسكين الطالب</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Transfer Student Modal -->
+    <div id="transfer-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl border border-slate-100">
+            <div class="bg-gradient-to-r from-teal-800 to-indigo-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-base font-black flex items-center gap-2">
+                    <i class="fa-solid fa-arrows-spin"></i>
+                    نقل وتعديل مجموعة الطالب الفوري
+                </h3>
+                <button onclick="closeTransferModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="t-student-id">
+                
+                <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 space-y-1">
+                    <p class="text-xs text-indigo-700 font-bold">الطالب الحالي المراد نقله:</p>
+                    <h4 id="t-student-display-name" class="text-base font-black text-indigo-950">اسم الطالب</h4>
+                    <p class="text-xs text-indigo-600 font-medium" id="t-student-display-meta">التفاصيل الحالية</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">المستوى الجديد المستهدف</label>
+                        <select id="t-student-level-select" onchange="suggestGroupsForTransfer(this.value)" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500">
+                            <option value="1">Level 1</option>
+                            <option value="2">Level 2</option>
+                            <option value="3">Level 3</option>
+                            <option value="4">Level 4</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">تحديث إجمالي الحصص المتبقية</label>
+                        <input type="number" id="t-student-remaining-classes" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- Dynamic Transfer suggestions -->
+                <div>
+                    <span class="block text-xs font-bold text-indigo-950 mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-check-double text-indigo-600"></i>
+                        اختر المجموعة الجديدة الشاغرة للتحويل إليها:
+                    </span>
+                    <div id="transfer-group-suggestions" class="space-y-2 border border-slate-100 p-3 rounded-2xl bg-slate-50 max-h-48 overflow-y-auto">
+                        <!-- Filled dynamically -->
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button onclick="closeTransferModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-5 py-3 rounded-xl transition-all">إلغاء</button>
+                    <button onclick="executeStudentTransfer()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-6 py-3 rounded-xl shadow-lg transition-all">تأكيد ونقل الطالب الآن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Add / Adjust Manual Extra Hours Modal -->
+    <div id="hours-adjustment-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-slate-100">
+            <div class="bg-gradient-to-r from-teal-800 to-teal-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-base font-black flex items-center gap-2" id="hours-adjustment-modal-title">
+                    <i class="fa-solid fa-clock"></i>
+                    تخصيص وإضافة ساعات عمل يدوية / إضافية
+                </h3>
+                <button onclick="closeHoursAdjustmentModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اختر المدرب المعني</label>
+                    <select id="m-adj-coach" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">عدد الساعات (مثال: 4.5 أو 2)</label>
+                        <input type="number" id="m-adj-hours" step="0.5" placeholder="عدد الساعات المضافة" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">التاريخ</label>
+                        <input type="date" id="m-adj-date" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">سبب الإضافة / مذكرات العمل</label>
+                    <input type="text" id="m-adj-reason" placeholder="مثال: تغطية وردية إضافية، ساعات تدريب خارجي..." class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button onclick="closeHoursAdjustmentModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-5 py-3 rounded-xl transition-all">إلغاء</button>
+                    <button onclick="saveHoursAdjustment()" id="save-adjustment-btn" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-6 py-3 rounded-xl shadow-lg transition-all">حفظ واعتماد الساعات</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Add New Coach Profile Modal -->
+    <div id="add-coach-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-100">
+            <div class="bg-gradient-to-r from-teal-800 to-teal-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-base font-black flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i>
+                    إضافة ملف مدرب جديد وصلاحيات دخول
+                </h3>
+                <button onclick="closeAddCoachModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">اسم المدرب ثلاثي</label>
+                    <input type="text" id="new-coach-name" placeholder="مثال: كابتن محمد الحربي" class="w-full text-xs font-semibold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">الوردية والتحولات</label>
+                    <select id="new-coach-shift" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500">
+                        <option value="صباحي">الفترة الصباحية فقط</option>
+                        <option value="مسائي">الفترة المسائية فقط</option>
+                        <option value="صباحي ومسائي">صباحي ومسائي مرن</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">اسم المستخدم للدخول</label>
+                        <input type="text" id="new-coach-username" placeholder="مثال: mh1" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none" dir="ltr">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">كلمة المرور السرية</label>
+                        <input type="text" id="new-coach-password" placeholder="مثال: 990" class="w-full text-xs font-bold border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-teal-500 outline-none" dir="ltr">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button onclick="closeAddCoachModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-5 py-3 rounded-xl transition-all">إلغاء</button>
+                    <button onclick="executeAddCoach()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-6 py-3 rounded-xl shadow-lg transition-all">إضافة المدرب وتنشيطه</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bulletproof Combined JavaScript Script Logic Block -->
+    <script>
+        // Seed Initial Mock Data for Captain Eyad Swimming Academy with Security Credentials
+        const INITIAL_COACHES = [
+            { id: "c1", name: "كابتن إياد", shift: "صباحي ومسائي", active: true, availableNow: true, username: "eyad", password: "100" },
+            { id: "c2", name: "كابتن مالك", shift: "صباحي ومسائي", active: true, availableNow: true, username: "malik", password: "200" },
+            { id: "c3", name: "كابتن أحمد سعد", shift: "مسائي", active: true, availableNow: false, username: "ahmed", password: "300" },
+            { id: "c4", name: "كابتن عادل", shift: "مسائي", active: true, availableNow: true, username: "adel", password: "400" },
+            { id: "c5", name: "كابتن محمد ناجح", shift: "مسائي", active: true, availableNow: false, username: "najeh", password: "500" },
+            { id: "c6", name: "كابتن عمر", shift: "صباحي", active: true, availableNow: true, username: "omar", password: "600" },
+            { id: "c7", name: "كابتن محمد خالد", shift: "مسائي", active: true, availableNow: true, username: "khaled", password: "700" },
+            { id: "c8", name: "كابتن حسام", shift: "صباحي ومسائي", active: true, availableNow: false, username: "husam", password: "800" }
+        ];
+
+        const INITIAL_GROUPS = [
+            { id: "g1", name: "مجموعة الأبطال الصباحية", level: "1", coachId: "c1", type: "Group", day: "السبت", startTime: "11:00", endTime: "12:00", maxCapacity: 5, studentCount: 5 },
+            { id: "g2", name: "مجموعة النخبة المستوى الثاني", level: "2", coachId: "c2", type: "Group", day: "الأحد", startTime: "17:00", endTime: "18:00", maxCapacity: 5, studentCount: 3 },
+            { id: "g3", name: "تدريب خاص كابتن أحمد", level: "3", coachId: "c3", type: "Private", day: "الإثنين", startTime: "11:00", endTime: "12:00", maxCapacity: 1, studentCount: 1 },
+            { id: "g4", name: "مجموعة التحدي المستوى الأول", level: "1", coachId: "c8", type: "Group", day: "السبت", startTime: "12:00", endTime: "13:00", maxCapacity: 5, studentCount: 4 },
+            { id: "g5", name: "مستكشفي البحار الرابع", level: "4", coachId: "c4", type: "Group", day: "الثلاثاء", startTime: "18:00", endTime: "19:00", maxCapacity: 5, studentCount: 2 },
+            { id: "g6", name: "تدريب خاص كابتن عمر", level: "2", coachId: "c6", type: "Private", day: "الأربعاء", startTime: "13:00", endTime: "14:00", maxCapacity: 1, studentCount: 0 }
+        ];
+
+        const INITIAL_STUDENTS = [
+            { id: "s1", name: "أحمد فيصل الحربي", level: "1", groupId: "g1", coachId: "c1", totalClasses: 12, completedClasses: 4, remainingClasses: 8, lastAttendanceStatus: "حاضر" },
+            { id: "s2", name: "يزيد عادل المطيري", level: "1", groupId: "g1", coachId: "c1", totalClasses: 8, completedClasses: 2, remainingClasses: 6, lastAttendanceStatus: "حاضر" },
+            { id: "s3", name: "سلطان خالد العتيبي", level: "1", groupId: "g1", coachId: "c1", totalClasses: 12, completedClasses: 8, remainingClasses: 4, lastAttendanceStatus: "غائب" },
+            { id: "s4", name: "فهد محمد الشمري", level: "1", groupId: "g1", coachId: "c1", totalClasses: 8, completedClasses: 8, remainingClasses: 0, lastAttendanceStatus: "حاضر" },
+            { id: "s5", name: "فيصل خالد السديري", level: "1", groupId: "g1", coachId: "c1", totalClasses: 12, completedClasses: 5, remainingClasses: 7, lastAttendanceStatus: "متأخر" },
+            { id: "s6", name: "ريان نايف القحطاني", level: "2", groupId: "g2", coachId: "c2", totalClasses: 8, completedClasses: 3, remainingClasses: 5, lastAttendanceStatus: "None" },
+            { id: "s7", name: "عبدالإله عبدالمجيد", level: "2", groupId: "g2", coachId: "c2", totalClasses: 12, completedClasses: 6, remainingClasses: 6, lastAttendanceStatus: "None" },
+            { id: "s8", name: "سلمان بن عبد العزيز", level: "2", groupId: "g2", coachId: "c2", totalClasses: 8, completedClasses: 1, remainingClasses: 7, lastAttendanceStatus: "None" },
+            { id: "s9", name: "بندر وليد الدوسري", level: "3", groupId: "g3", coachId: "c3", totalClasses: 12, completedClasses: 10, remainingClasses: 2, lastAttendanceStatus: "None" },
+            { id: "s10", name: "مشعل سعد القحطاني", level: "1", groupId: "g4", coachId: "c8", totalClasses: 8, completedClasses: 2, remainingClasses: 6, lastAttendanceStatus: "None" },
+            { id: "s11", name: "نايف محمد السبيعي", level: "1", groupId: "g4", coachId: "c8", totalClasses: 12, completedClasses: 4, remainingClasses: 8, lastAttendanceStatus: "None" },
+            { id: "s12", name: "تركي بن عبدالله", level: "1", groupId: "g4", coachId: "c8", totalClasses: 8, completedClasses: 0, remainingClasses: 8, lastAttendanceStatus: "None" },
+            { id: "s13", name: "خالد فهد السهلي", level: "1", groupId: "g4", coachId: "c8", totalClasses: 12, completedClasses: 5, remainingClasses: 7, lastAttendanceStatus: "None" },
+            { id: "s14", name: "يزن سعود العريفي", level: "4", groupId: "g5", coachId: "c4", totalClasses: 12, completedClasses: 1, remainingClasses: 11, lastAttendanceStatus: "None" },
+            { id: "s15", name: "طلال ناصر آل سعود", level: "4", groupId: "g5", coachId: "c4", totalClasses: 8, completedClasses: 3, remainingClasses: 5, lastAttendanceStatus: "None" }
+        ];
+
+        const INITIAL_ATTENDANCE_LOGS = [
+            { id: "log1", date: "2026-07-04", groupName: "مجموعة الأبطال الصباحية", coachName: "كابتن إياد", timestamp: "11:30 ص", recordedBy: "كابتن إياد", studentsCount: 5, present: 4, absent: 1, late: 1 }
+        ];
+
+        const INITIAL_HOURS_ADJUSTMENTS = [
+            { id: "adj1", coachId: "c1", hours: 4.5, reason: "ساعات عمل وتدريب وتأهيل إداري إضافية", date: "2026-07-05", timestamp: "12:30 م" }
+        ];
+
+        // Global Application State (Includes authentication)
+        let state = {
+            coaches: [...INITIAL_COACHES],
+            groups: [...INITIAL_GROUPS],
+            students: [...INITIAL_STUDENTS],
+            attendanceLogs: [...INITIAL_ATTENDANCE_LOGS],
+            hoursAdjustments: [...INITIAL_HOURS_ADJUSTMENTS],
+            adminPassword: "yosr1152020", // Configured verbatim
+            currentUser: null, // null when logged out, { role: 'admin' } or { role: 'coach', coachId: 'c1' }
+            activeTab: 'dashboard', // dashboard, groups, students, trainer-hours, attendance-audit, credentials-setup
+            searchQuery: '',
+            selectedLevelFilter: 'all',
+            editingGroupId: null, 
+            editingAdjustmentId: null 
+        };
+
+        // System Notification Pop-up
+        function showToast(text, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const box = document.getElementById('toast-box');
+            const icon = document.getElementById('toast-icon');
+            const textEl = document.getElementById('toast-text');
+
+            if (!container || !box || !textEl) return;
+
+            textEl.innerText = text;
+            if (type === 'success') {
+                box.className = "flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border border-emerald-500 bg-emerald-600 text-white font-semibold";
+                icon.innerHTML = `<i class="fa-solid fa-circle-check text-xl"></i>`;
+            } else if (type === 'error') {
+                box.className = "flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border border-rose-500 bg-rose-600 text-white font-semibold";
+                icon.innerHTML = `<i class="fa-solid fa-circle-xmark text-xl"></i>`;
+            } else {
+                box.className = "flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border border-amber-500 bg-amber-500 text-white font-semibold";
+                icon.innerHTML = `<i class="fa-solid fa-circle-exclamation text-xl"></i>`;
+            }
+
+            container.classList.remove('translate-y-[-100px]', 'opacity-0');
+            container.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                container.classList.remove('translate-y-0', 'opacity-100');
+                container.classList.add('translate-y-[-100px]', 'opacity-0');
+            }, 4000);
+        }
+
+        // Init Logic on Window Load
+        window.onload = function () {
+            const systemDateEl = document.getElementById('live-system-date');
+            if (systemDateEl) {
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                // July 5, 2026 correctly parsed
+                systemDateEl.innerText = new Date(2026, 6, 5).toLocaleDateString('ar-EG', options);
+            }
+
+            // Perform initial setups
+            populateCoachSelects();
+            checkAppSession();
+        };
+
+        // Tab selection on the login gate
+        function toggleLoginTab(tab) {
+            const adminTab = document.getElementById('login-tab-admin');
+            const coachTab = document.getElementById('login-tab-coach');
+            const adminForm = document.getElementById('admin-login-form');
+            const coachForm = document.getElementById('coach-login-form');
+
+            if (tab === 'admin') {
+                adminTab.className = "w-1/2 text-xs font-black py-2 rounded-lg transition-all text-white bg-teal-600 shadow-md";
+                coachTab.className = "w-1/2 text-xs font-black py-2 rounded-lg transition-all text-teal-400 hover:text-white";
+                adminForm.classList.remove('hidden');
+                coachForm.classList.add('hidden');
+            } else {
+                coachTab.className = "w-1/2 text-xs font-black py-2 rounded-lg transition-all text-white bg-teal-600 shadow-md";
+                adminTab.className = "w-1/2 text-xs font-black py-2 rounded-lg transition-all text-teal-400 hover:text-white";
+                coachForm.classList.remove('hidden');
+                adminForm.classList.add('hidden');
+            }
+        }
+
+        // Check and render layouts based on state session
+        function checkAppSession() {
+            const loginScreen = document.getElementById('login-screen');
+            const mainApp = document.getElementById('main-app');
+            const adminWorkspace = document.getElementById('admin-workspace');
+            const coachWorkspace = document.getElementById('coach-workspace');
+            const adminNavBar = document.getElementById('admin-nav-bar');
+            const searchBox = document.getElementById('search-box-container');
+            const userBadge = document.getElementById('user-display-badge');
+
+            if (state.currentUser === null) {
+                loginScreen.classList.remove('hidden');
+                mainApp.classList.add('hidden');
+            } else {
+                loginScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+
+                if (state.currentUser.role === 'admin') {
+                    adminNavBar.classList.remove('hidden');
+                    adminWorkspace.classList.remove('hidden');
+                    coachWorkspace.classList.add('hidden');
+                    searchBox.classList.remove('hidden');
+                    userBadge.innerHTML = `<i class="fa-solid fa-crown text-amber-400"></i> لوحة الإدارة الكاملة`;
+                } else if (state.currentUser.role === 'coach') {
+                    adminNavBar.classList.add('hidden');
+                    adminWorkspace.classList.add('hidden');
+                    coachWorkspace.classList.remove('hidden');
+                    searchBox.classList.add('hidden');
+                    
+                    const activeCoach = state.coaches.find(c => c.id === state.currentUser.coachId);
+                    if (activeCoach) {
+                        userBadge.innerHTML = `<i class="fa-solid fa-user-astronaut text-teal-300"></i> الكابتن: ${activeCoach.name}`;
+                        document.getElementById('coach-welcome-title').innerText = `أهلاً بك، ${activeCoach.name} 👋`;
+                        document.getElementById('coach-shift-subtitle').innerText = `الفترة الزمنية لعملك: ${activeCoach.shift}`;
+                    }
+                }
+                renderAll();
+            }
+        }
+
+        // Helper to show/hide typed passwords
+        function togglePasswordVisibility(inputId, eyeIconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(eyeIconId);
+            if (input && icon) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'fa-solid fa-eye-slash';
+                } else {
+                    input.type = 'password';
+                    icon.className = 'fa-solid fa-eye';
+                }
+            }
+        }
+
+        // Bulletproof Direct Admin Login Logic (Bypasses sandboxed iframe submission blocks)
+        function handleAdminLoginDirect() {
+            const passwordInput = document.getElementById('admin-pwd-input').value.trim();
+
+            if (passwordInput === state.adminPassword.trim()) {
+                state.currentUser = { role: 'admin' };
+                document.getElementById('admin-pwd-input').value = ''; // clear
+                showToast("تم التحقق بنجاح! مرحباً بك في لوحة الإدارة.", "success");
+                checkAppSession();
+            } else {
+                showToast("رمز مرور الإدارة غير صحيح! الرجاء المحاولة مرة أخرى.", "error");
+            }
+        }
+
+        // Bulletproof Direct Coach Login Logic
+        function handleCoachLoginDirect() {
+            const username = document.getElementById('coach-username-input').value.trim().toLowerCase();
+            const password = document.getElementById('coach-pwd-input').value.trim();
+
+            const coach = state.coaches.find(c => c.username.toLowerCase() === username && c.password === password);
+
+            if (coach) {
+                if (!coach.active) {
+                    showToast("حسابك مجمّد حالياً من قبل الإدارة.", "error");
+                    return;
+                }
+                state.currentUser = { role: 'coach', coachId: coach.id };
+                document.getElementById('coach-username-input').value = '';
+                document.getElementById('coach-pwd-input').value = '';
+                showToast(`مرحباً بك كابتن ${coach.name}! تم تسجيل دخولك بنجاح.`, "success");
+                checkAppSession();
+            } else {
+                showToast("اسم المستخدم أو كلمة المرور غير صحيحة!", "error");
+            }
+        }
+
+        // Safely Logout
+        function handleLogout() {
+            state.currentUser = null;
+            state.activeTab = 'dashboard';
+            hideAttendancePanel();
+            showToast("تم تسجيل خروجك من النظام بنجاح.", "success");
+            checkAppSession();
+        }
+
+        // Fill dynamic dropdown lists
+        function populateCoachSelects() {
+            const groupCoachEl = document.getElementById('m-group-coach');
+            if (groupCoachEl) {
+                groupCoachEl.innerHTML = state.coaches.map(c => `<option value="${c.id}">${c.name} (${c.shift})</option>`).join('');
+            }
+            const adjCoachEl = document.getElementById('m-adj-coach');
+            if (adjCoachEl) {
+                adjCoachEl.innerHTML = state.coaches.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            }
+        }
+
+        // Tab selection switches
+        function switchTab(tabId) {
+            state.activeTab = tabId;
+            const tabs = ['dashboard', 'groups', 'students', 'trainer-hours', 'attendance-audit', 'credentials-setup'];
+            
+            tabs.forEach(t => {
+                const tabBtn = document.getElementById(`tab-${t}`);
+                if (tabBtn) {
+                    if (t === tabId) {
+                        tabBtn.className = "flex items-center gap-2 px-4 py-4 text-xs md:text-sm font-bold border-b-2 transition-all whitespace-nowrap text-teal-600 border-teal-600";
+                    } else {
+                        tabBtn.className = "flex items-center gap-2 px-4 py-4 text-xs md:text-sm font-bold border-b-2 transition-all whitespace-nowrap text-slate-500 border-transparent hover:text-teal-600 hover:border-teal-500";
+                    }
+                }
+                
+                const viewEl = document.getElementById(`view-${t}`);
+                if (viewEl) {
+                    if (t === tabId) viewEl.classList.remove('hidden');
+                    else viewEl.classList.add('hidden');
+                }
+            });
+
+            renderAll();
+        }
+
+        function handleGlobalSearch(val) {
+            state.searchQuery = val.trim().toLowerCase();
+            renderAll();
+        }
+
+        function filterStudentsByLevel(levelVal) {
+            state.selectedLevelFilter = levelVal;
+            renderAll();
+        }
+
+        // Toggle Coach Availability state
+        function toggleCoachAvailability(coachId) {
+            const coach = state.coaches.find(c => c.id === coachId);
+            if (coach) {
+                coach.availableNow = !coach.availableNow;
+                showToast(`تم تحديث حالة تفرغ المدرب ${coach.name} إلى: ${coach.availableNow ? 'متاح (فاضي)' : 'مشغول'}`, 'success');
+                renderAll();
+            }
+        }
+
+        function getGroupStatus(g) {
+            if (g.studentCount >= g.maxCapacity) {
+                return { text: "مكتملة تماماً (Full)", badge: "bg-rose-100 text-rose-800 border-rose-200", color: "rose", indicator: "🔴" };
+            } else if (g.studentCount === g.maxCapacity - 1) {
+                return { text: "مقعد واحد متبقي", badge: "bg-amber-100 text-amber-800 border-amber-200", color: "amber", indicator: "🟡" };
+            } else {
+                return { text: "متاح (مقاعد شاغرة)", badge: "bg-emerald-100 text-emerald-800 border-emerald-200", color: "emerald", indicator: "🟢" };
+            }
+        }
+
+        function countStudentsInGroup(groupId) {
+            return state.students.filter(s => s.groupId === groupId).length;
+        }
+
+        // Render Everything based on session state
+        function renderAll() {
+            state.groups.forEach(g => {
+                g.studentCount = countStudentsInGroup(g.id);
+            });
+
+            if (state.currentUser && state.currentUser.role === 'admin') {
+                renderAdminDashboard();
+                renderGroupsTable();
+                renderStudentsTable();
+                renderTrainerHours();
+                renderAttendanceLogsTable();
+                renderCredentialsTable();
+            } else if (state.currentUser && state.currentUser.role === 'coach') {
+                renderCoachPortal();
+            }
+        }
+
+        function renderAdminDashboard() {
+            const coachesCountEl = document.getElementById('stat-coaches-count');
+            const sessionsCountEl = document.getElementById('stat-sessions-count');
+            const sessionsSubEl = document.getElementById('stat-sessions-sub');
+            const expectedStudentsEl = document.getElementById('stat-expected-students');
+            const actualAttendedEl = document.getElementById('stat-actual-attended');
+            const absentCountEl = document.getElementById('stat-absent-count');
+
+            if (coachesCountEl) coachesCountEl.innerText = state.coaches.length;
+            if (sessionsCountEl) sessionsCountEl.innerText = state.groups.length;
+            
+            const groupSessions = state.groups.filter(g => g.type === 'Group').length;
+            const privateSessions = state.groups.filter(g => g.type === 'Private').length;
+            if (sessionsSubEl) sessionsSubEl.innerText = `${groupSessions} جماعية | ${privateSessions} خاصة`;
+
+            // Filtered Groups list
+            const filteredGroups = state.groups.filter(g => {
+                const coach = state.coaches.find(c => c.id === g.coachId);
+                const matchesSearch = !state.searchQuery || 
+                    g.name.toLowerCase().includes(state.searchQuery) ||
+                    (coach && coach.name.toLowerCase().includes(state.searchQuery)) ||
+                    `level ${g.level}`.includes(state.searchQuery) ||
+                    g.level.includes(state.searchQuery);
+                return matchesSearch;
+            });
+
+            if (expectedStudentsEl) expectedStudentsEl.innerText = state.students.length;
+
+            let totalAttended = state.students.filter(s => s.lastAttendanceStatus === 'حاضر' || s.lastAttendanceStatus === 'متأخر').length;
+            let totalAbsent = state.students.filter(s => s.lastAttendanceStatus === 'غائب').length;
+
+            if (actualAttendedEl) actualAttendedEl.innerText = totalAttended;
+            if (absentCountEl) absentCountEl.innerText = `عدد المتغيبين اليوم: ${totalAbsent} طلاب`;
+
+            // Coach list status sidebar
+            const coachStatusEl = document.getElementById('dashboard-coach-status');
+            if (coachStatusEl) {
+                coachStatusEl.innerHTML = state.coaches.map(c => {
+                    return `
+                        <div onclick="toggleCoachAvailability('${c.id}')" class="flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-teal-50 border border-slate-100 cursor-pointer transition-all">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-xs font-black">
+                                    <i class="fa-solid fa-user-check"></i>
+                                </div>
+                                <div>
+                                    <h5 class="text-xs font-bold text-slate-800">${c.name}</h5>
+                                    <p class="text-[9px] text-slate-400">الوردية: ${c.shift}</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${c.availableNow ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                                ${c.availableNow ? '🟢 متاح (فاضي)' : '🔴 مشغول حالياً'}
+                            </span>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Level Vacancies mapping 
+            const levelSeatsEl = document.getElementById('dashboard-level-seats');
+            if (levelSeatsEl) {
+                let levelVacancyHTML = '';
+                for (let lvl = 1; lvl <= 4; lvl++) {
+                    const lvlGroups = state.groups.filter(g => g.level === lvl.toString());
+                    const totalCap = lvlGroups.reduce((acc, g) => acc + g.maxCapacity, 0);
+                    const totalStud = lvlGroups.reduce((acc, g) => acc + g.studentCount, 0);
+                    const remaining = Math.max(0, totalCap - totalStud);
+                    
+                    let vacancyText = "";
+                    let colorClass = "";
+                    if (remaining === 0) {
+                        vacancyText = "مكتمل تماماً";
+                        colorClass = "text-rose-600 bg-rose-50 border-rose-100";
+                    } else if (remaining < 3) {
+                        vacancyText = `محدودة (${remaining} شاغرة)`;
+                        colorClass = "text-amber-600 bg-amber-50 border-amber-100";
+                    } else {
+                        vacancyText = `متوفرة بالكامل (${remaining})`;
+                        colorClass = "text-emerald-600 bg-emerald-50 border-emerald-100";
+                    }
+
+                    levelVacancyHTML += `
+                        <div class="p-2.5 rounded-xl border ${colorClass} flex justify-between items-center text-xs">
+                            <div>
+                                <span class="font-bold">المستوى (Level ${lvl})</span>
+                                <p class="text-[9px] opacity-80">${lvlGroups.length} مجموعات نشطة</p>
+                            </div>
+                            <div class="text-left font-black">
+                                <span>${totalStud} / ${totalCap} طالب</span>
+                                <span class="block text-[9px] font-bold text-slate-500">${vacancyText}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                levelSeatsEl.innerHTML = levelVacancyHTML;
+            }
+
+            // Vacant groups cards
+            const vacantGroupsEl = document.getElementById('dashboard-vacant-groups');
+            if (vacantGroupsEl) {
+                const vacantGroups = state.groups.filter(g => g.studentCount < g.maxCapacity);
+                if (vacantGroups.length === 0) {
+                    vacantGroupsEl.innerHTML = `
+                        <div class="col-span-full bg-slate-100 p-4 rounded-xl text-center text-slate-400 text-xs">
+                            لا توجد حالياً أي مجموعات بها أماكن شاغرة. الرجاء إنشاء أو تعديل المجموعات.
+                        </div>
+                    `;
+                } else {
+                    vacantGroupsEl.innerHTML = vacantGroups.map(g => {
+                        const coach = state.coaches.find(c => c.id === g.coachId);
+                        const rem = g.maxCapacity - g.studentCount;
+                        return `
+                            <div class="bg-white rounded-2xl p-3 border border-emerald-200/60 shadow-sm flex flex-col justify-between hover:shadow-md transition-all pulse-available">
+                                <div>
+                                    <span class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded-full inline-block">Level ${g.level}</span>
+                                    <h4 class="text-xs font-black text-slate-800 mt-1">${g.name}</h4>
+                                    <p class="text-[10px] text-slate-500 mt-0.5">المدرب: ${coach ? coach.name : 'غير محدد'}</p>
+                                    <p class="text-[10px] text-slate-500">يوم: ${g.day} | ${g.startTime} - ${g.endTime}</p>
+                                </div>
+                                <div class="flex items-center justify-between border-t border-slate-100 pt-2 mt-2">
+                                    <span class="text-xs font-extrabold text-teal-800">${rem} أماكن شاغرة</span>
+                                    <button onclick="quickEnroll('${g.id}', '${g.level}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition-all">
+                                        <i class="fa-solid fa-user-plus"></i>
+                                        تسكين سريع ⚡
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+
+            // Group Grid display
+            const groupsGridEl = document.getElementById('dashboard-groups-grid');
+            if (groupsGridEl) {
+                if (filteredGroups.length === 0) {
+                    groupsGridEl.innerHTML = `
+                        <div class="col-span-full bg-slate-50 p-8 rounded-2xl text-center text-slate-400 text-xs">
+                            لا توجد مجموعات تطابق بحثك حالياً...
+                        </div>
+                    `;
+                } else {
+                    groupsGridEl.innerHTML = filteredGroups.map(g => {
+                        const status = getGroupStatus(g);
+                        const coach = state.coaches.find(c => c.id === g.coachId);
+                        const progressWidth = Math.min(100, (g.studentCount / g.maxCapacity) * 100);
+                        
+                        return `
+                            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-all space-y-3 relative overflow-hidden">
+                                <div class="absolute top-0 inset-x-0 h-1.5 bg-${status.color === 'rose' ? 'rose' : (status.color === 'amber' ? 'amber' : 'emerald')}-500"></div>
+
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-[10px] text-teal-600 font-extrabold uppercase">Level ${g.level} • ${g.type === 'Private' ? 'حصّة خاصة' : 'جماعي'}</span>
+                                        <h4 class="text-sm font-black text-slate-800 mt-0.5">${g.name}</h4>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${status.badge}">
+                                        ${status.indicator} ${status.text}
+                                    </span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-2 text-xs py-2 bg-slate-50 rounded-xl px-3 text-slate-600">
+                                    <div>
+                                        <p class="text-[10px] text-slate-400">المدرب المسؤول</p>
+                                        <p class="font-bold text-slate-800">${coach ? coach.name : 'غير محدد'}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-400">الموعد الأسبوعي</p>
+                                        <p class="font-bold text-slate-800">${g.day} (${g.startTime} - ${g.endTime})</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1">
+                                    <div class="flex justify-between text-[10px] font-bold text-slate-600">
+                                        <span>الطلاب المسجلين: ${g.studentCount} من ${g.maxCapacity}</span>
+                                        <span>المتبقي: ${Math.max(0, g.maxCapacity - g.studentCount)}</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-${status.color === 'rose' ? 'rose' : (status.color === 'amber' ? 'amber' : 'emerald')}-500 rounded-full" style="width: ${progressWidth}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+
+        // Assistant recommendations for enrollment
+        function runAssistantRecommendation(level) {
+            const resultBox = document.getElementById('assistant-result');
+            if (!resultBox) return;
+
+            if (!level) {
+                resultBox.innerHTML = `<div class="text-center text-slate-400 py-4">في انتظار اختيار المستوى للبحث...</div>`;
+                return;
+            }
+
+            const matchingGroups = state.groups.filter(g => g.level === level.toString() && g.studentCount < g.maxCapacity);
+
+            if (matchingGroups.length === 0) {
+                resultBox.innerHTML = `
+                    <div class="text-rose-600 font-bold flex gap-2 text-xs">
+                        <i class="fa-solid fa-circle-exclamation text-base"></i>
+                        <span>عذراً! جميع المجموعات للمستوى ${level} ممتلئة تماماً.</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">يرجى تعديل إحدى المجموعات أو تغيير تشكيل المدربين لفتح ليفلات إضافية.</p>
+                `;
+            } else {
+                const recommendedHTML = matchingGroups.map((g, index) => {
+                    const coach = state.coaches.find(c => c.id === g.coachId);
+                    const remaining = g.maxCapacity - g.studentCount;
+                    return `
+                        <div class="p-2 bg-teal-50 rounded-lg border border-teal-100 ${index === 0 ? 'ring-2 ring-teal-500/30' : ''}">
+                            <div class="flex justify-between items-center font-bold">
+                                <span class="text-teal-950">${g.name} ${index === 0 ? '⭐ (الأكثر تفرغاً)' : ''}</span>
+                                <span class="text-xs text-teal-800">${remaining} مقاعد</span>
+                            </div>
+                            <div class="text-[10px] text-slate-600 mt-1">
+                                المدرب: ${coach ? coach.name : 'غير متاح'} | يوم: ${g.day} | الموعد: ${g.startTime} - ${g.endTime}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                resultBox.innerHTML = `
+                    <div class="space-y-2">
+                        <p class="font-bold text-slate-800 text-[10px] text-teal-800">مجموعات مناسبة وشاغرة للمستوى ${level}:</p>
+                        ${recommendedHTML}
+                    </div>
+                `;
+            }
+        }
+
+        // Quick booking trigger
+        function quickEnroll(groupId, level) {
+            openStudentModal();
+            document.getElementById('m-student-level').value = level;
+            suggestGroupsForStudent(level);
+            
+            setTimeout(() => {
+                const radios = document.getElementsByName('enroll-group-choice');
+                for (let r of radios) {
+                    if (r.value === groupId) {
+                        r.checked = true;
+                        break;
+                    }
+                }
+            }, 80);
+        }
+
+        function renderGroupsTable() {
+            const tableBody = document.getElementById('groups-table-body');
+            if (!tableBody) return;
+
+            const filteredGroups = state.groups.filter(g => {
+                const coach = state.coaches.find(c => c.id === g.coachId);
+                const matchesSearch = !state.searchQuery || 
+                    g.name.toLowerCase().includes(state.searchQuery) ||
+                    (coach && coach.name.toLowerCase().includes(state.searchQuery)) ||
+                    g.level.includes(state.searchQuery);
+                return matchesSearch;
+            });
+
+            tableBody.innerHTML = filteredGroups.map(g => {
+                const status = getGroupStatus(g);
+                const coach = state.coaches.find(c => c.id === g.coachId);
+                return `
+                    <tr class="hover:bg-slate-50/80 transition-all text-xs">
+                        <td class="p-3">
+                            <span class="font-extrabold text-slate-800 block">${g.name}</span>
+                            <span class="text-[10px] font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full inline-block mt-0.5">
+                                ${g.type === 'Private' ? 'حصّة خاصة (Private)' : 'تدريب جماعي (Group)'}
+                            </span>
+                        </td>
+                        <td class="p-3 font-bold text-indigo-950">Level ${g.level}</td>
+                        <td class="p-3 font-semibold text-slate-700">${coach ? coach.name : 'غير مخصّص'}</td>
+                        <td class="p-3">
+                            <span class="font-bold text-slate-800 block">${g.day}</span>
+                            <span class="text-xs text-slate-500">${g.startTime} - ${g.endTime}</span>
+                        </td>
+                        <td class="p-3 font-bold">${g.studentCount} / ${g.maxCapacity} طالب</td>
+                        <td class="p-3">
+                            <span class="px-2 py-1 rounded-lg text-xs font-bold border ${status.badge}">
+                                ${status.indicator} ${status.text}
+                            </span>
+                        </td>
+                        <td class="p-3 text-center flex items-center justify-center gap-1">
+                            <button onclick="editGroupSetup('${g.id}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 transition-all">
+                                <i class="fa-solid fa-pencil"></i>
+                                تعديل التشكيل
+                            </button>
+                            <button onclick="deleteGroup('${g.id}')" class="text-rose-500 hover:text-rose-700 p-2" title="حذف المجموعة">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderStudentsTable() {
+            const tableBody = document.getElementById('students-table-body');
+            if (!tableBody) return;
+            
+            const filteredStudents = state.students.filter(s => {
+                if (state.selectedLevelFilter !== 'all' && s.level !== state.selectedLevelFilter) {
+                    return false;
+                }
+                const group = state.groups.find(g => g.id === s.groupId);
+                const coach = state.coaches.find(c => c.id === s.coachId);
+                const matchesSearch = !state.searchQuery ||
+                    s.name.toLowerCase().includes(state.searchQuery) ||
+                    (group && group.name.toLowerCase().includes(state.searchQuery)) ||
+                    (coach && coach.name.toLowerCase().includes(state.searchQuery)) ||
+                    s.level.includes(state.searchQuery);
+                
+                return matchesSearch;
+            });
+
+            tableBody.innerHTML = filteredStudents.map(s => {
+                const group = state.groups.find(g => g.id === s.groupId);
+                const coach = state.coaches.find(c => c.id === s.coachId);
+                
+                let statusBadge = "bg-teal-50 text-teal-800 border-teal-200";
+                let statusText = "نشط";
+                if (s.remainingClasses === 0) {
+                    statusBadge = "bg-rose-100 text-rose-800 border-rose-200";
+                    statusText = "منتهي";
+                } else if (s.remainingClasses <= 2) {
+                    statusBadge = "bg-amber-100 text-amber-800 border-amber-200";
+                    statusText = "على وشك الانتهاء";
+                }
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition-all text-xs">
+                        <td class="p-3 font-extrabold text-slate-800">${s.name}</td>
+                        <td class="p-3"><span class="bg-indigo-50 text-indigo-700 font-bold text-xs px-2.5 py-1 rounded-full">Level ${s.level}</span></td>
+                        <td class="p-3 font-semibold text-slate-800">${group ? group.name : 'غير مسكن'}</td>
+                        <td class="p-3 text-xs text-slate-600">${coach ? coach.name : 'غير محدد'}</td>
+                        <td class="p-3 font-bold text-slate-700 text-xs">
+                            <span class="text-emerald-600">${s.completedClasses} منجزة</span> / 
+                            <span class="text-indigo-600">${s.remainingClasses} متبقية</span>
+                            <span class="text-[9px] text-slate-400 block font-normal">باقة: ${s.totalClasses}</span>
+                        </td>
+                        <td class="p-3">
+                            <span class="px-2 py-0.5 rounded-full text-xs font-bold border ${statusBadge}">
+                                ${statusText}
+                            </span>
+                        </td>
+                        <td class="p-3 text-center">
+                            <button onclick="openTransferModal('${s.id}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 mx-auto transition-all">
+                                <i class="fa-solid fa-arrows-spin"></i>
+                                نقل وتطوير المستوى
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderTrainerHours() {
+            const gridEl = document.getElementById('coaches-hours-grid');
+            const manualTableBody = document.getElementById('manual-hours-table-body');
+            
+            if (gridEl) {
+                gridEl.innerHTML = state.coaches.map(c => {
+                    const coachLogs = state.attendanceLogs.filter(l => l.recordedBy === c.name);
+                    const autoHours = coachLogs.length; 
+
+                    const coachAdjustments = state.hoursAdjustments.filter(adj => adj.coachId === c.id);
+                    const manualHours = coachAdjustments.reduce((acc, adj) => acc + parseFloat(adj.hours || 0), 0);
+
+                    const totalHours = autoHours + manualHours;
+
+                    const groupHours = coachLogs.filter(l => !l.groupName.includes("خاص")).length;
+                    const privateHours = coachLogs.filter(l => l.groupName.includes("خاص")).length;
+
+                    return `
+                        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:border-teal-300 transition-all space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-teal-800 text-teal-100 flex items-center justify-center font-black">
+                                        <i class="fa-solid fa-stopwatch text-base"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-extrabold text-slate-800 text-xs">${c.name}</h4>
+                                        <p class="text-[10px] text-slate-400">وردية: ${c.shift}</p>
+                                    </div>
+                                </div>
+                                <span class="bg-teal-50 text-teal-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-teal-100">
+                                    المجموع: ${totalHours} ساعة
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div class="bg-emerald-50/50 p-2 rounded-xl border border-emerald-100">
+                                    <span class="text-[9px] text-emerald-800 font-bold block">تلقائي (الحضور)</span>
+                                    <span class="font-extrabold text-emerald-700 text-xs">${autoHours} ساعة</span>
+                                </div>
+                                <div class="bg-amber-50/50 p-2 rounded-xl border border-amber-100">
+                                    <span class="text-[9px] text-amber-800 font-bold block">إضافي (يدوي)</span>
+                                    <span class="font-extrabold text-amber-700 text-xs">${manualHours} ساعة</span>
+                                </div>
+                                <div class="bg-teal-950 text-white p-2 rounded-xl flex flex-col justify-center">
+                                    <span class="text-[9px] text-teal-200 font-bold block">الصافي الكلي</span>
+                                    <span class="font-extrabold text-xs">${totalHours} ساعة</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-[10px] text-slate-600 flex justify-between">
+                                <span>جماعي تلقائي: <strong>${groupHours} حصة</strong></span>
+                                <span>خاص تلقائي: <strong>${privateHours} حصة</strong></span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            if (manualTableBody) {
+                if (state.hoursAdjustments.length === 0) {
+                    manualTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="p-6 text-center text-slate-400 text-xs">
+                                لا توجد أي ساعات إضافية مضافة يدوياً حالياً.
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    manualTableBody.innerHTML = state.hoursAdjustments.map(adj => {
+                        const coach = state.coaches.find(c => c.id === adj.coachId);
+                        return `
+                            <tr class="hover:bg-slate-50/80 transition-all text-xs">
+                                <td class="p-3 font-bold text-slate-800">${coach ? coach.name : 'غير معروف'}</td>
+                                <td class="p-3 text-slate-500">
+                                    <span>${adj.date}</span>
+                                    <span class="text-[9px] block text-slate-400 font-normal">${adj.timestamp}</span>
+                                </td>
+                                <td class="p-3 font-black text-teal-700">+ ${adj.hours} ساعة</td>
+                                <td class="p-3 text-slate-600 font-semibold">${adj.reason}</td>
+                                <td class="p-3 text-center flex items-center justify-center gap-2">
+                                    <button onclick="editHoursAdjustment('${adj.id}')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 p-2 rounded" title="تعديل الساعات">
+                                        <i class="fa-solid fa-pencil"></i>
+                                    </button>
+                                    <button onclick="deleteHoursAdjustment('${adj.id}')" class="text-rose-500 hover:text-rose-700 p-2" title="حذف وإلغاء هذه الساعات">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+
+        function renderAttendanceLogsTable() {
+            const tableBody = document.getElementById('attendance-audit-table-body');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = state.attendanceLogs.map(l => {
+                return `
+                    <tr class="hover:bg-slate-50/80 transition-all text-xs">
+                        <td class="p-3">
+                            <span class="font-bold text-slate-800 block">${l.date}</span>
+                            <span class="text-[9px] text-slate-400">${l.timestamp}</span>
+                        </td>
+                        <td class="p-3 font-extrabold text-slate-800">${l.groupName}</td>
+                        <td class="p-3 text-slate-600">${l.coachName}</td>
+                        <td class="p-3">
+                            <span class="text-emerald-600 block">✅ حاضر: ${l.present}</span>
+                            <span class="text-rose-500 block">❌ غائب: ${l.absent}</span>
+                            ${l.late ? `<span class="text-amber-500 block">⏰ متأخر: ${l.late}</span>` : ''}
+                        </td>
+                        <td class="p-3"><span class="bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded">${l.recordedBy}</span></td>
+                        <td class="p-3 text-center">
+                            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-check"></i> معتمد ومرحل</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderCredentialsTable() {
+            const tbody = document.getElementById('credentials-table-body');
+            if (!tbody) return;
+
+            tbody.innerHTML = state.coaches.map(c => {
+                return `
+                    <tr class="hover:bg-slate-50 transition-all text-xs">
+                        <td class="p-3 font-extrabold text-slate-800">${c.name}</td>
+                        <td class="p-3 text-slate-600 font-semibold">${c.shift}</td>
+                        <td class="p-3">
+                            <input type="text" id="cred-user-${c.id}" value="${c.username}" class="border border-slate-300 rounded-lg p-2 text-xs font-bold w-full bg-slate-50 focus:ring-1 focus:ring-teal-500 outline-none" dir="ltr">
+                        </td>
+                        <td class="p-3">
+                            <input type="text" id="cred-pwd-${c.id}" value="${c.password}" class="border border-slate-300 rounded-lg p-2 text-xs font-bold w-full bg-slate-50 focus:ring-1 focus:ring-teal-500 outline-none" dir="ltr">
+                        </td>
+                        <td class="p-3 text-center">
+                            <button onclick="saveCoachCredentials('${c.id}')" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1 mx-auto transition-all">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                حفظ التحديث
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function saveCoachCredentials(coachId) {
+            const userVal = document.getElementById(`cred-user-${coachId}`).value.trim();
+            const pwdVal = document.getElementById(`cred-pwd-${coachId}`).value.trim();
+
+            if (!userVal || !pwdVal) {
+                showToast("لا يمكن ترك اسم المستخدم أو كلمة المرور فارغة!", "error");
+                return;
+            }
+
+            const isDuplicate = state.coaches.some(c => c.id !== coachId && c.username.toLowerCase() === userVal.toLowerCase());
+            if (isDuplicate) {
+                showToast("اسم المستخدم هذا مكرر ومسجل لمدرب آخر!", "error");
+                return;
+            }
+
+            const coach = state.coaches.find(c => c.id === coachId);
+            if (coach) {
+                coach.username = userVal;
+                coach.password = pwdVal;
+                showToast(`تم تحديث وحفظ بيانات تسجيل دخول كابتن ${coach.name} بنجاح!`, "success");
+                renderAll();
+            }
+        }
+
+        function openAddCoachModal() {
+            document.getElementById('new-coach-name').value = '';
+            document.getElementById('new-coach-username').value = '';
+            document.getElementById('new-coach-password').value = '';
+            document.getElementById('add-coach-modal').classList.remove('hidden');
+        }
+
+        function closeAddCoachModal() {
+            document.getElementById('add-coach-modal').classList.add('hidden');
+        }
+
+        function executeAddCoach() {
+            const name = document.getElementById('new-coach-name').value.trim();
+            const shift = document.getElementById('new-coach-shift').value;
+            const username = document.getElementById('new-coach-username').value.trim().toLowerCase();
+            const password = document.getElementById('new-coach-password').value.trim();
+
+            if (!name || !username || !password) {
+                showToast("الرجاء تعبئة كافة الحقول لملف المدرب الجديد", "error");
+                return;
+            }
+
+            const isDuplicate = state.coaches.some(c => c.username.toLowerCase() === username);
+            if (isDuplicate) {
+                showToast("اسم المستخدم هذا محجوز لمدرب آخر بالفعل!", "error");
+                return;
+            }
+
+            const newCoach = {
+                id: "c-" + Date.now(),
+                name,
+                shift,
+                active: true,
+                availableNow: true,
+                username,
+                password
+            };
+
+            state.coaches.push(newCoach);
+            showToast(`تم إدراج كابتن ${name} بنجاح وصلاحيات دخوله جاهزة الآن!`, "success");
+            closeAddCoachModal();
+            populateCoachSelects();
+            renderAll();
+        }
+
+        function renderCoachPortal() {
+            const activeCoachId = state.currentUser.coachId;
+            const currentCoach = state.coaches.find(c => c.id === activeCoachId);
+            if (!currentCoach) return;
+
+            const myGroups = state.groups.filter(g => g.coachId === activeCoachId);
+            
+            const coachLogs = state.attendanceLogs.filter(l => l.recordedBy === currentCoach.name);
+            document.getElementById('coach-portal-hours').innerText = `${coachLogs.length} حصة`;
+            document.getElementById('coach-portal-groups-count').innerText = `${myGroups.length} مجموعات`;
+
+            const myGroupsListEl = document.getElementById('coach-my-groups-list');
+
+            if (myGroups.length === 0) {
+                myGroupsListEl.innerHTML = `
+                    <div class="col-span-full bg-white p-8 rounded-2xl text-center text-slate-400 text-xs border border-slate-200">
+                        لا توجد أي مجموعات مسندة ومسجلة تحت اسمك حالياً.
+                    </div>
+                `;
+            } else {
+                myGroupsListEl.innerHTML = myGroups.map(g => {
+                    const status = getGroupStatus(g);
+                    return `
+                        <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4 hover:border-teal-400 transition-all text-xs">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[10px] text-teal-600 font-bold">Level ${g.level} • ${g.type === 'Private' ? 'حصّة خاصة' : 'جماعية'}</span>
+                                    <h4 class="font-extrabold text-slate-800 text-sm">${g.name}</h4>
+                                </div>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${status.badge}">${status.text}</span>
+                            </div>
+
+                            <div class="text-xs text-slate-600 bg-slate-50 p-3 rounded-xl space-y-1">
+                                <p><strong>الموعد الأسبوعي:</strong> يوم ${g.day} (${g.startTime} - ${g.endTime})</p>
+                                <p><strong>الطلاب المسجلين:</strong> ${g.studentCount} طلاب</p>
+                            </div>
+
+                            <button onclick="triggerAttendanceForm('${g.id}')" class="w-full bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold py-2.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-clipboard-user"></i>
+                                تسجيل حضور وغياب الطلاب اليوم
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        let activeAttendanceGroupId = null;
+
+        function triggerAttendanceForm(groupId) {
+            activeAttendanceGroupId = groupId;
+            const group = state.groups.find(g => g.id === groupId);
+            const groupStudents = state.students.filter(s => s.groupId === groupId);
+
+            document.getElementById('attendance-panel-badge').innerText = `Level ${group.level} • ${group.type}`;
+            document.getElementById('attendance-panel-group-name').innerText = `قائمة تحضير: ${group.name}`;
+            document.getElementById('attendance-panel-timing').innerText = `الموعد: يوم ${group.day} (${group.startTime} - ${group.endTime})`;
+
+            const sheetBody = document.getElementById('attendance-sheet-body');
+            
+            if (groupStudents.length === 0) {
+                sheetBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="p-6 text-center text-slate-400 text-xs">
+                            لا يوجد طلاب مسجلين في هذه المجموعة حالياً للتحضير.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                sheetBody.innerHTML = groupStudents.map(s => {
+                    return `
+                        <tr class="hover:bg-slate-50 text-xs">
+                            <td class="p-3 font-bold text-slate-800">${s.name}</td>
+                            <td class="p-3 text-xs text-slate-600">Level ${s.level}</td>
+                            <td class="p-3 font-semibold text-xs text-indigo-700">${s.remainingClasses} حصص متبقية</td>
+                            <td class="p-3">
+                                <div class="flex justify-center gap-3">
+                                    <label class="flex items-center gap-1 cursor-pointer bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1.5 rounded-lg border border-emerald-200">
+                                        <input type="radio" name="att-${s.id}" value="حاضر" checked class="accent-emerald-600">
+                                        حاضر ✅
+                                    </label>
+                                    
+                                    <label class="flex items-center gap-1 cursor-pointer bg-rose-50 hover:bg-rose-100 text-rose-800 text-[10px] font-bold px-2.5 py-1.5 rounded-lg border border-rose-200">
+                                        <input type="radio" name="att-${s.id}" value="غائب" class="accent-rose-600">
+                                        غائب ❌
+                                    </label>
+
+                                    <label class="flex items-center gap-1 cursor-pointer bg-amber-50 hover:bg-amber-100 text-amber-800 text-[10px] font-bold px-2.5 py-1.5 rounded-lg border border-amber-200">
+                                        <input type="radio" name="att-${s.id}" value="متأخر" class="accent-amber-600">
+                                        متأخر ⏰
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            const panel = document.getElementById('attendance-taking-panel');
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideAttendancePanel() {
+            document.getElementById('attendance-taking-panel').classList.add('hidden');
+            activeAttendanceGroupId = null;
+        }
+
+        function submitAttendanceSheet() {
+            if (!activeAttendanceGroupId) return;
+
+            const group = state.groups.find(g => g.id === activeAttendanceGroupId);
+            const groupStudents = state.students.filter(s => s.groupId === activeAttendanceGroupId);
+            const coach = state.coaches.find(c => c.id === state.currentUser.coachId);
+
+            if (!coach) return;
+
+            if (groupStudents.length === 0) {
+                showToast("لا يوجد طلاب لتحضيرهم في الكشف!", "error");
+                return;
+            }
+
+            let counts = { present: 0, absent: 0, late: 0 };
+
+            groupStudents.forEach(s => {
+                const radioEls = document.getElementsByName(`att-${s.id}`);
+                let selectedStatus = "حاضر";
+                for (let radio of radioEls) {
+                    if (radio.checked) {
+                        selectedStatus = radio.value;
+                        break;
+                    }
+                }
+
+                s.lastAttendanceStatus = selectedStatus;
+
+                if (selectedStatus === 'حاضر' || selectedStatus === 'متأخر') {
+                    if (s.remainingClasses > 0) {
+                        s.remainingClasses -= 1;
+                        s.completedClasses += 1;
+                    }
+                    if (selectedStatus === 'حاضر') counts.present++;
+                    if (selectedStatus === 'متأخر') counts.late++;
+                } else if (selectedStatus === 'غائب') {
+                    counts.absent++;
+                }
+            });
+
+            const newLog = {
+                id: "log-" + Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                groupName: group.name,
+                coachName: coach.name,
+                timestamp: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                recordedBy: coach.name,
+                studentsCount: groupStudents.length,
+                present: counts.present,
+                absent: counts.absent,
+                late: counts.late
+            };
+
+            state.attendanceLogs.unshift(newLog);
+            showToast(`تم حفظ وتدقيق كشف حضور طلاب مجموعة "${group.name}" بنجاح!`, "success");
+            
+            hideAttendancePanel();
+            renderAll();
+        }
+
+        function openGroupModal() {
+            state.editingGroupId = null;
+            document.getElementById('group-modal-title').innerHTML = `<i class="fa-solid fa-circle-plus"></i> تأسيس مجموعة جديدة وتخصيص المدربين`;
+            document.getElementById('m-group-name').value = '';
+            document.getElementById('m-group-start').value = '16:00';
+            document.getElementById('m-group-end').value = '17:00';
+            document.getElementById('m-group-capacity').value = '5';
+            document.getElementById('save-group-btn').innerText = 'حفظ وتأكيد التأسيس';
+            document.getElementById('group-modal').classList.remove('hidden');
+        }
+
+        function editGroupSetup(id) {
+            const g = state.groups.find(group => group.id === id);
+            if (!g) return;
+
+            state.editingGroupId = id;
+            document.getElementById('group-modal-title').innerHTML = `<i class="fa-solid fa-pencil"></i> تعديل تشكيل المجموعة والمدرب المسؤول`;
+            document.getElementById('m-group-name').value = g.name;
+            document.getElementById('m-group-level').value = g.level;
+            document.getElementById('m-group-type').value = g.type;
+            document.getElementById('m-group-coach').value = g.coachId;
+            document.getElementById('m-group-day').value = g.day;
+            document.getElementById('m-group-start').value = g.startTime;
+            document.getElementById('m-group-end').value = g.endTime;
+            document.getElementById('m-group-capacity').value = g.maxCapacity;
+
+            document.getElementById('save-group-btn').innerText = 'تطبيق التعديلات الحالية';
+            document.getElementById('group-modal').classList.remove('hidden');
+        }
+
+        function closeGroupModal() {
+            document.getElementById('group-modal').classList.add('hidden');
+            state.editingGroupId = null;
+        }
+
+        function saveNewGroup() {
+            const name = document.getElementById('m-group-name').value.trim();
+            const level = document.getElementById('m-group-level').value;
+            const type = document.getElementById('m-group-type').value;
+            const coachId = document.getElementById('m-group-coach').value;
+            const day = document.getElementById('m-group-day').value;
+            const startTime = document.getElementById('m-group-start').value;
+            const endTime = document.getElementById('m-group-end').value;
+            const maxCapacity = parseInt(document.getElementById('m-group-capacity').value) || 5;
+
+            if (!name) {
+                showToast("الرجاء كتابة اسم المجموعة التدريبية", "error");
+                return;
+            }
+
+            if (state.editingGroupId) {
+                const g = state.groups.find(group => group.id === state.editingGroupId);
+                if (g) {
+                    g.name = name;
+                    g.level = level;
+                    g.type = type;
+                    g.coachId = coachId;
+                    g.day = day;
+                    g.startTime = startTime;
+                    g.endTime = endTime;
+                    g.maxCapacity = maxCapacity;
+                    showToast("تم تعديل تشكيل المجموعة وتحديث مستواها ومدربها بنجاح!", "success");
+                }
+            } else {
+                const newGroup = {
+                    id: "g-" + Date.now(),
+                    name,
+                    level,
+                    coachId,
+                    type,
+                    day,
+                    startTime,
+                    endTime,
+                    maxCapacity,
+                    studentCount: 0
+                };
+                state.groups.push(newGroup);
+                showToast("تم إدراج وتدشين المجموعة الجديدة بنجاح", "success");
+            }
+
+            closeGroupModal();
+            renderAll();
+        }
+
+        function deleteGroup(id) {
+            const groupStudents = state.students.filter(s => s.groupId === id);
+            if (groupStudents.length > 0) {
+                showToast("عذراً، لا يمكن حذف مجموعة بها طلاب نشطين. قم بنقل الطلاب أولاً.", "error");
+                return;
+            }
+            state.groups = state.groups.filter(g => g.id !== id);
+            showToast("تم إزالة المجموعة المحددة بنجاح", "warning");
+            renderAll();
+        }
+
+        function openStudentModal() {
+            document.getElementById('m-student-name').value = '';
+            document.getElementById('m-student-level').value = '';
+            document.getElementById('student-group-suggestions').innerHTML = `
+                <p class="text-xs text-slate-400 text-center py-4">الرجاء اختيار مستوى الطالب أولاً لعرض المقترحات المتاحة...</p>
+            `;
+            document.getElementById('student-modal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('student-modal').classList.add('hidden');
+        }
+
+        function suggestGroupsForStudent(level) {
+            const container = document.getElementById('student-group-suggestions');
+            if (!level) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">الرجاء اختيار مستوى الطالب أولاً لعرض المقترحات المتاحة...</p>`;
+                return;
+            }
+
+            const matching = state.groups.filter(g => g.level === level.toString());
+            if (matching.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-xs text-rose-500 font-bold">
+                        لا توجد أي مجموعة مخصصة للمستوى ${level} حالياً. قم بإنشاء واحدة أولاً.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = matching.map(g => {
+                const isFull = g.studentCount >= g.maxCapacity;
+                const remaining = g.maxCapacity - g.studentCount;
+                const coach = state.coaches.find(c => c.id === g.coachId);
+                
+                return `
+                    <label class="flex items-center justify-between p-2 rounded-xl border ${isFull ? 'bg-rose-50/50 border-rose-200 opacity-60' : 'bg-white border-slate-200 hover:border-teal-400 cursor-pointer'} text-xs">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="enroll-group-choice" value="${g.id}" ${isFull ? 'disabled' : ''} class="accent-teal-600">
+                            <div>
+                                <span class="font-extrabold text-slate-800">${g.name}</span>
+                                <span class="block text-[10px] text-slate-500">${coach ? coach.name : 'بدون مدرب'} | يوم ${g.day} (${g.startTime} - ${g.endTime})</span>
+                            </div>
+                        </div>
+                        <span class="font-bold text-[10px] ${isFull ? 'text-rose-600' : 'text-emerald-600'}">
+                            ${isFull ? 'مكتملة تماماً' : `متاح (${remaining} شاغر)`}
+                        </span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function saveNewStudent() {
+            const name = document.getElementById('m-student-name').value.trim();
+            const level = document.getElementById('m-student-level').value;
+            const totalClasses = parseInt(document.getElementById('m-student-classes').value) || 8;
+            
+            const groupRadios = document.getElementsByName('enroll-group-choice');
+            let groupId = "";
+            for (let radio of groupRadios) {
+                if (radio.checked) {
+                    groupId = radio.value;
+                    break;
+                }
+            }
+
+            if (!name) {
+                showToast("الرجاء كتابة اسم الطالب", "error");
+                return;
+            }
+            if (!level) {
+                showToast("الرجاء تحديد مستوى الطالب", "error");
+                return;
+            }
+            if (!groupId) {
+                showToast("الرجاء اختيار مجموعة شاغرة لتسكين الطالب بها", "error");
+                return;
+            }
+
+            const targetGroup = state.groups.find(g => g.id === groupId);
+
+            if (countStudentsInGroup(groupId) >= targetGroup.maxCapacity) {
+                showToast("عذراً، هذه المجموعة ممتلئة تماماً.", "error");
+                return;
+            }
+
+            const newStudent = {
+                id: "s-" + Date.now(),
+                name,
+                level,
+                groupId,
+                coachId: targetGroup.coachId,
+                totalClasses,
+                completedClasses: 0,
+                remainingClasses: totalClasses,
+                lastAttendanceStatus: "None"
+            };
+
+            state.students.push(newStudent);
+            showToast(`تم تسجيل وتوطين الطالب ${name} في المجموعة التدريبية بنجاح!`, "success");
+            closeStudentModal();
+            renderAll();
+        }
+
+        function openTransferModal(studentId) {
+            const s = state.students.find(stud => stud.id === studentId);
+            if (!s) return;
+
+            document.getElementById('t-student-id').value = s.id;
+            document.getElementById('t-student-display-name').innerText = s.name;
+            
+            const currentGroup = state.groups.find(g => g.id === s.groupId);
+            document.getElementById('t-student-display-meta').innerText = `المستوى الحالي: ${s.level} | المجموعة النشطة: ${currentGroup ? currentGroup.name : 'غير حدد'}`;
+            
+            document.getElementById('t-student-level-select').value = s.level;
+            document.getElementById('t-student-remaining-classes').value = s.remainingClasses;
+
+            suggestGroupsForTransfer(s.level);
+            document.getElementById('transfer-modal').classList.remove('hidden');
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transfer-modal').classList.add('hidden');
+        }
+
+        function suggestGroupsForTransfer(level) {
+            const container = document.getElementById('transfer-group-suggestions');
+            const studentId = document.getElementById('t-student-id').value;
+            const s = state.students.find(stud => stud.id === studentId);
+
+            if (!s) return;
+
+            const matching = state.groups.filter(g => g.level === level.toString());
+            
+            if (matching.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-xs text-rose-500 font-bold">
+                        لا توجد أي مجموعة مفعّلة للمستوى ${level} حالياً.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = matching.map(g => {
+                const isCurrent = g.id === s.groupId;
+                const isFull = g.studentCount >= g.maxCapacity && !isCurrent;
+                const remaining = g.maxCapacity - g.studentCount;
+                const coach = state.coaches.find(c => c.id === g.coachId);
+
+                return `
+                    <label class="flex items-center justify-between p-2 rounded-xl border ${isFull ? 'bg-rose-50/50 border-rose-200 opacity-60' : 'bg-white border-slate-200 hover:border-teal-400 cursor-pointer'} text-xs">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="transfer-group-choice" value="${g.id}" ${isFull ? 'disabled' : ''} ${isCurrent ? 'checked' : ''} class="accent-indigo-600">
+                            <div>
+                                <span class="font-extrabold text-slate-800">${g.name} ${isCurrent ? '👈 (مجموعته الحالية)' : ''}</span>
+                                <span class="block text-[10px] text-slate-500">${coach ? coach.name : 'بدون مدرب'} | يوم ${g.day} (${g.startTime} - ${g.endTime})</span>
+                            </div>
+                        </div>
+                        <span class="font-bold text-[10px] ${isFull ? 'text-rose-600' : 'text-emerald-600'}">
+                            ${isFull ? 'مكتملة تماماً' : `متاح (${remaining} شاغر)`}
+                        </span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function executeStudentTransfer() {
+            const studentId = document.getElementById('t-student-id').value;
+            const targetLevel = document.getElementById('t-student-level-select').value;
+            const remainingClasses = parseInt(document.getElementById('t-student-remaining-classes').value) || 0;
+
+            const groupRadios = document.getElementsByName('transfer-group-choice');
+            let targetGroupId = "";
+            for (let radio of groupRadios) {
+                if (radio.checked) {
+                    targetGroupId = radio.value;
+                    break;
+                }
+            }
+
+            if (!targetGroupId) {
+                showToast("الرجاء تحديد المجموعة التدريبية المراد التحويل إليها", "error");
+                return;
+            }
+
+            const s = state.students.find(stud => stud.id === studentId);
+            if (!s) return;
+
+            const targetGroup = state.groups.find(g => g.id === targetGroupId);
+
+            if (s.groupId !== targetGroupId && targetGroup.studentCount >= targetGroup.maxCapacity) {
+                showToast("عذراً، المجموعة المستهدفة ممتلئة تماماً.", "error");
+                return;
+            }
+
+            s.level = targetLevel;
+            s.groupId = targetGroupId;
+            s.coachId = targetGroup.coachId;
+            s.remainingClasses = remainingClasses;
+
+            showToast(`تم بنجاح تعديل ونقل الطالب ${s.name} إلى المستوى والمجموعة الجديدة!`, "success");
+            closeTransferModal();
+            renderAll();
+        }
+
+        function openHoursAdjustmentModal() {
+            state.editingAdjustmentId = null;
+            document.getElementById('hours-adjustment-modal-title').innerHTML = `<i class="fa-solid fa-clock"></i> تخصيص وإضافة ساعات عمل يدوية / إضافية`;
+            document.getElementById('m-adj-hours').value = '';
+            document.getElementById('m-adj-reason').value = '';
+            document.getElementById('m-adj-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('save-adjustment-btn').innerText = 'حفظ واعتماد الساعات';
+            document.getElementById('hours-adjustment-modal').classList.remove('hidden');
+        }
+
+        function editHoursAdjustment(id) {
+            const adj = state.hoursAdjustments.find(a => a.id === id);
+            if (!adj) return;
+
+            state.editingAdjustmentId = id;
+            document.getElementById('hours-adjustment-modal-title').innerHTML = `<i class="fa-solid fa-pencil"></i> تعديل الساعات اليدوية المسجلة`;
+            document.getElementById('m-adj-coach').value = adj.coachId;
+            document.getElementById('m-adj-hours').value = adj.hours;
+            document.getElementById('m-adj-date').value = adj.date;
+            document.getElementById('m-adj-reason').value = adj.reason;
+
+            document.getElementById('save-adjustment-btn').innerText = 'تحديث وتأكيد الساعات';
+            document.getElementById('hours-adjustment-modal').classList.remove('hidden');
+        }
+
+        function closeHoursAdjustmentModal() {
+            document.getElementById('hours-adjustment-modal').classList.add('hidden');
+            state.editingAdjustmentId = null;
+        }
+
+        function saveHoursAdjustment() {
+            const coachId = document.getElementById('m-adj-coach').value;
+            const hours = parseFloat(document.getElementById('m-adj-hours').value);
+            const date = document.getElementById('m-adj-date').value;
+            const reason = document.getElementById('m-adj-reason').value.trim();
+
+            if (isNaN(hours) || hours <= 0) {
+                showToast("الرجاء إدخال عدد ساعات تدريب صحيح وموجب", "error");
+                return;
+            }
+            if (!date) {
+                showToast("الرجاء تحديد التاريخ", "error");
+                return;
+            }
+
+            if (state.editingAdjustmentId) {
+                const adj = state.hoursAdjustments.find(a => a.id === state.editingAdjustmentId);
+                if (adj) {
+                    adj.coachId = coachId;
+                    adj.hours = hours;
+                    adj.date = date;
+                    adj.reason = reason || "تعديل ساعات من الإدارة";
+                    showToast("تم تحديث الساعات الإضافية للمدرب بنجاح!", "success");
+                }
+            } else {
+                const newAdj = {
+                    id: "adj-" + Date.now(),
+                    coachId,
+                    hours,
+                    reason: reason || "إضافة يدوية من الإدارة",
+                    date,
+                    timestamp: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', hour12: true })
+                };
+                state.hoursAdjustments.unshift(newAdj);
+                showToast("تمت إضافة ساعات العمل الإضافية للمدرب بنجاح", "success");
+            }
+
+            closeHoursAdjustmentModal();
+            renderAll();
+        }
+
+        function deleteHoursAdjustment(id) {
+            state.hoursAdjustments = state.hoursAdjustments.filter(adj => adj.id !== id);
+            showToast("تم حذف وإلغاء الساعات اليدوية المحددة بنجاح", "warning");
+            renderAll();
+        }
+    </script>
+</body>
+</html>
