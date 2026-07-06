@@ -2394,7 +2394,62 @@
         function deleteHoursAdjustment(id) {
             state.hoursAdjustments = state.hoursAdjustments.filter(adj => adj.id !== id);
             showToast("تم حذف وإلغاء الساعات اليدوية المحددة بنجاح", "warning");
-            renderAll();
+           <!-- هيكل الجدول -->
+<table class="w-full text-right border-collapse">
+    <thead>
+        <tr class="bg-gray-100">
+            <th class="p-3">اسم الطالب</th>
+            <th class="p-3">المستوى</th>
+            <th class="p-3">المجموعة</th>
+            <th class="p-3">إجراءات</th>
+        </tr>
+    </thead>
+    <tbody id="students-table-body">
+        <!-- سيتم ملء البيانات هنا برمجياً -->
+    </tbody>
+</table>
+
+<script>
+// 1. مصفوفة البيانات (استبدلها ببياناتك الحالية)
+let students = JSON.parse(localStorage.getItem('studentsData')) || [
+    { name: "محمد أحمد", level: "مبتدئ", group: "أ" },
+    { name: "سارة علي", level: "متوسط", group: "ب" }
+];
+
+// 2. دالة عرض الطلاب
+function renderStudents(studentsList) {
+    const tbody = document.getElementById('students-table-body');
+    tbody.innerHTML = '';
+    
+    studentsList.forEach((student, index) => {
+        const row = document.createElement('tr');
+        row.className = "border-b hover:bg-gray-50";
+        row.innerHTML = `
+            <td class="p-3">${student.name}</td>
+            <td class="p-3">${student.level}</td>
+            <td class="p-3">${student.group}</td>
+            <td class="p-3">
+                <button onclick="deleteStudent(${index})" class="text-red-600 hover:text-red-900">
+                    حذف
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// 3. دالة الحذف
+function deleteStudent(index) {
+    if (confirm('هل أنت متأكد من حذف هذا الطالب؟')) {
+        students.splice(index, 1); // حذف العنصر
+        localStorage.setItem('studentsData', JSON.stringify(students)); // تحديث التخزين
+        renderStudents(students); // إعادة رسم الجدول
+    }
+}
+
+// تنفيذ العرض عند تحميل الصفحة
+renderStudents(students);
+</script> renderAll();
         }
     </script>
 </body>
